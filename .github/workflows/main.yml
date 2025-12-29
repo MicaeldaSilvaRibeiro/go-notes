@@ -4,7 +4,7 @@ on: [push]
 jobs:
   deploy:
     # Este é o comando que liga o GitHub à tua VM local
-    runs-on: self-hosted 
+    runs-on: self-hosted
 
     steps:
       - name: Checkout Código
