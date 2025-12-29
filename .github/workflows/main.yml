@@ -1,37 +1,18 @@
 name: CI/CD Pipeline
-
-on:
-  push:
-    branches: [ main ]
+on: [push]
 
 jobs:
-  ci-test:
-    runs-on: ubuntu-latest
+  deploy:
+    # Este é o comando que liga o GitHub à tua VM local
+    runs-on: self-hosted 
+
     steps:
-      - uses: actions/checkout@v3
-      - name: Setup Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.21'
-      - name: Build and Test
+      - name: Checkout Código
+        uses: actions/checkout@v3
+
+      - name: Build e Deploy
         run: |
           go mod tidy
-          go build -v
-          go test -v
-
-  cd-deploy:
-    needs: ci-test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_IP }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            cd /home/appuser/go-notes
-            git pull origin main
-            go build -o go-notes
-            sudo systemctl restart go-notes.service
-
+          go build -o go-notes
+          # O runner já está na VM, por isso executa o restart localmente
+          sudo systemctl restart go-notes.service
