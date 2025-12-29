@@ -1,18 +1,26 @@
+version: '3.8'
+
 services:
   db:
     image: postgres:15-alpine
     environment:
-      POSTGRES_DB: app_db
-      POSTGRES_USER: db_user
-      POSTGRES_PASSWORD: appuser123
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: notes_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
   app:
     build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: db
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_NAME: notes_db
     depends_on:
       - db
-    env_file: .env
 
   caddy:
     image: caddy:latest
@@ -21,10 +29,8 @@ services:
       - "443:443"
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
-      - caddy_data:/data
     depends_on:
       - app
 
 volumes:
   postgres_data:
-  caddy_data:
